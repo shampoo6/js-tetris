@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/game.css">
+    <script src="js/config.js"></script>
+    <script src="js/block.js"></script>
+    <script src="js/logic.js"></script>
+</head>
+<body>
+<div class="container">
+    <canvas class="monitor"></canvas>
+    <div class="ui-container">
+        <canvas class="notice"></canvas>
+    </div>
+</div>
+</body>
+<script>
+    /* 其标准大小：行宽为10，列高为20 */
+
+    const monitor = document.querySelector('.monitor')
+    const notice = document.querySelector('.notice')
+    const uiContainer = document.querySelector('.ui-container')
+
+    // 初始化屏幕
+    function initScreen() {
+        monitor.width = config.monitor.w * config.block.size
+        monitor.height = config.monitor.h * config.block.size
+        notice.width = 4 * config.block.size
+        notice.height = 4 * config.block.size
+        uiContainer.style.paddingTop = monitor.offsetTop + 'px'
+    }
+
+    initScreen()
+
+    const ctx = monitor.getContext('2d')
+    const ctx2 = notice.getContext('2d')
+
+    const gl = new GameLogic(config, ctx, ctx2)
+    gl.start()
+</script>
+</html>

@@ -1,0 +1,23 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+.container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+}
+.monitor {
+  border: 5px solid #fff;
+}
+.notice {
+  border: 5px solid #fff;
+}
+.ui-container {
+  align-self: flex-start;
+  padding-left: 30px;
+}
+/*# sourceMappingURL=game.css.map */
