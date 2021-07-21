@@ -37,31 +37,32 @@ class GameLogic {
         }
         this.createPreShapes()
         this.bindInput()
+
     }
 
     // 创建预制件
     createPreShapes() {
         this.preShapes = []
         this.preShapes.push(() => {
-            return new I(ctx, this.config.block.size)
+            return new I(this.ctx, this.config.block.size)
         })
         this.preShapes.push(() => {
-            return new S(ctx, this.config.block.size)
+            return new S(this.ctx, this.config.block.size)
         })
         this.preShapes.push(() => {
-            return new J(ctx, this.config.block.size)
+            return new J(this.ctx, this.config.block.size)
         })
         this.preShapes.push(() => {
-            return new L(ctx, this.config.block.size)
+            return new L(this.ctx, this.config.block.size)
         })
         this.preShapes.push(() => {
-            return new O(ctx, this.config.block.size)
+            return new O(this.ctx, this.config.block.size)
         })
         this.preShapes.push(() => {
-            return new T(ctx, this.config.block.size)
+            return new T(this.ctx, this.config.block.size)
         })
         this.preShapes.push(() => {
-            return new Z(ctx, this.config.block.size)
+            return new Z(this.ctx, this.config.block.size)
         })
     }
 
@@ -143,6 +144,8 @@ class GameLogic {
         this.nextShape = this.generateShape()
         this.renderNotice()
 
+        slc.startLevel = this.config.game.startLevel
+
         // 开启计时
         this.timer = setInterval(() => {
 
@@ -168,7 +171,7 @@ class GameLogic {
         // 若不是手动点击下，则自动下坠计时
         if (!downPressed) {
             this.currentTime += 20
-            if (this.currentTime >= config.game.speed.yNormal) {
+            if (this.currentTime >= config.game.speed - 0 * this.config.game.perLevelSpeedUp) {
                 this.currentTime = 0
                 direction.y = 1
             }
@@ -179,11 +182,12 @@ class GameLogic {
         const collisionR = this.currentShape.collision(this.blocks, direction)
         if (collisionR.xBlocked) direction.x = 0
         if (collisionR.yBlocked) {
-            // 消除扫描
-            this.scanRemove()
-
             // 结束游戏判断
             if (this.gameOver()) return
+            // shape 放置得分
+            slc.getScore('block')
+            // 消除扫描
+            this.scanRemove()
 
             this.getNextShape()
             direction.y = 0
@@ -261,7 +265,6 @@ class GameLogic {
     }
 
     // 消除block
-    // todo 消除逻辑还有bug
     scanRemove() {
         let needRemoveBlock = []
 
@@ -279,40 +282,24 @@ class GameLogic {
             }
         }
 
-        // 扫描结束，删除block
-        needRemoveBlock.forEach(y => {
-            for (let x = 0; x < this.config.monitor.w; x++) {
-                let block = this.blocks[x][y]
-                this.blocks[x][y] = null
-                if (block.shape.removeBlock(block)) {
-                    this.unregisterShape(block.shape)
+        if (needRemoveBlock.length > 0) {
+            // 扫描结束，删除block
+            needRemoveBlock.forEach(y => {
+                for (let x = 0; x < this.config.monitor.w; x++) {
+                    let block = this.blocks[x][y]
+                    this.blocks[x][y] = null
+                    if (block.shape.removeBlock(block)) {
+                        this.unregisterShape(block.shape)
+                    }
                 }
-            }
-        })
+            })
 
-        // block 下坠补位逻辑
-        // todo 下坠逻辑有问题
-        // let currentEmptyLine = undefined // 当前空行的y值
-        // for (let y = this.config.monitor.h - 1; y >= 0; y--) {
-        //     let emptyLine = true // 判断当前扫描行是否是空行
-        //     for (let x = 0; x < this.config.monitor.w; x++) {
-        //         let block = this.blocks[x][y]
-        //         if (block) {
-        //             emptyLine = false
-        //             // 当前砖块下落到空行
-        //             if (currentEmptyLine) {
-        //                 this.blocks[x][y] = null
-        //                 block.position.y = currentEmptyLine
-        //                 this.blocks[x][block.position.y] = block
-        //             }
-        //         }
-        //     }
-        //     if (emptyLine) {
-        //         if (!currentEmptyLine || currentEmptyLine > y) currentEmptyLine = y
-        //     }
-        // }
 
-        downBlock(this.blocks, this.config.monitor.h - 1, this.config.monitor.w, this.config.monitor.h)
+            downBlock(this.blocks, this.config.monitor.h - 1, this.config.monitor.w, this.config.monitor.h)
+
+            // 得分
+            slc.getScore('score' + needRemoveBlock.length)
+        }
 
         // 砖块下坠
         function downBlock(blocks, y, w, h) {
@@ -335,7 +322,7 @@ class GameLogic {
             // 判断是否扫描结束
             if (startY === undefined || endY === undefined) return
 
-            // todo 根据空行数，下降剩余砖块的高度
+            // 根据空行数，下降剩余砖块的高度
             let lines = startY - endY // 下降多少行
             for (let y = endY; y >= 0; y--) {
                 for (let x = 0; x < w; x++) {

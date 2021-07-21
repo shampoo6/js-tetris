@@ -6,40 +6,51 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/game.css">
-    <script src="js/config.js"></script>
-    <script src="js/block.js"></script>
-    <script src="js/logic.js"></script>
+    <script src="./js/main.js"></script>
 </head>
 <body>
 <div class="container">
     <canvas class="monitor"></canvas>
     <div class="ui-container">
         <canvas class="notice"></canvas>
+        <div class="txt">分数</div>
+        <div class="txt">0</div>
+        <div class="txt">等级</div>
+        <div class="txt">0</div>
+        <form>
+            <h3>控制</h3>
+            <div>
+                <label>左</label>
+                <input name="left"/>
+            </div>
+            <div>
+                <label>右</label>
+                <input name="right"/>
+            </div>
+            <div>
+                <label>下</label>
+                <input name="down"/>
+            </div>
+            <div>
+                <label>旋转</label>
+                <input name="turn"/>
+            </div>
+            <h3>系统</h3>
+            <div>
+                <label>初始等级</label>
+                <input name="level" type="number" min="0" max="10"/>
+            </div>
+            <div>
+                <label>升级所需分数</label>
+                <input name="levelUpScore" type="number" min="500" max="10000"/>
+            </div>
+            <div>
+                <button type="submit">保存</button>
+                <button type="button">开始</button>
+                <button type="button">暂停</button>
+            </div>
+        </form>
     </div>
 </div>
 </body>
-<script>
-    /* 其标准大小：行宽为10，列高为20 */
-
-    const monitor = document.querySelector('.monitor')
-    const notice = document.querySelector('.notice')
-    const uiContainer = document.querySelector('.ui-container')
-
-    // 初始化屏幕
-    function initScreen() {
-        monitor.width = config.monitor.w * config.block.size
-        monitor.height = config.monitor.h * config.block.size
-        notice.width = 4 * config.block.size
-        notice.height = 4 * config.block.size
-        uiContainer.style.paddingTop = monitor.offsetTop + 'px'
-    }
-
-    initScreen()
-
-    const ctx = monitor.getContext('2d')
-    const ctx2 = notice.getContext('2d')
-
-    const gl = new GameLogic(config, ctx, ctx2)
-    gl.start()
-</script>
 </html>
