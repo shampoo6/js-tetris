@@ -53,4 +53,40 @@
     </div>
 </div>
 </body>
+<script>
+    let saveBtn = document.querySelector('button:nth-of-type(1)')
+    let startBtn = document.querySelector('button:nth-of-type(2)')
+    let pauseBtn = document.querySelector('button:nth-of-type(3)')
+    let form = document.querySelector('form')
+
+    saveBtn.addEventListener('click', ev => {
+        ev.stopPropagation()
+        ev.preventDefault()
+
+        if (gl.gameStart) {
+            alert('请结束游戏后再保存')
+            return
+        }
+
+        if (form.checkValidity()) {
+            config.control.left = inputs[0].value
+            config.control.right = inputs[1].value
+            config.control.down = inputs[2].value
+            config.control.turn = inputs[3].value
+            config.game.startLevel = Number(inputs[4].value)
+            config.game.levelUpScore = Number(inputs[5].value)
+            alert('保存成功')
+        } else {
+            form.reportValidity()
+        }
+    })
+
+    startBtn.addEventListener('click', () => {
+        gl.start()
+    })
+
+    pauseBtn.addEventListener('click', () => {
+        gl.pause()
+    })
+</script>
 </html>

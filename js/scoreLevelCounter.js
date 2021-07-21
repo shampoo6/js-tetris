@@ -21,7 +21,19 @@ class ScoreLevelCounter {
         this.currentScore += score
         this.level = this.startLevel + Math.floor(this.currentScore / this.levelUpScore)
 
+        this.updateUI()
+    }
+
+    updateUI() {
         this.scoreTxt.innerText = this.currentScore
         this.levelTxt.innerText = this.level
+    }
+
+    reset() {
+        this.levelUpScore = 2500
+        this.currentScore = 0
+        this.level = 0
+        this.startLevel = 0
+        this.updateUI()
     }
 }

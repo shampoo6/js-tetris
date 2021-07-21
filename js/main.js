@@ -11,9 +11,22 @@ window.addEventListener('load', () => {
     const ctx = monitor.getContext('2d')
     const ctx2 = notice.getContext('2d')
 
+    // 用于数据回显的元素
+    window.inputs = document.querySelectorAll('input')
+
     // 加载config
     loadScript('./js/config.js', () => {
         initScreen()
+
+        // 数据回显
+        inputs[0].value = config.control.left
+        inputs[1].value = config.control.right
+        inputs[2].value = config.control.down
+        inputs[3].value = config.control.turn
+        inputs[4].value = config.game.startLevel
+        inputs[5].value = config.game.levelUpScore
+
+
         // config 加载完后 加载 block
         loadScript('./js/block.js', () => {
             // block 加载完后 加载 gl 和 slc

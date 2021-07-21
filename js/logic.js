@@ -1,6 +1,8 @@
 // 注意：
 // 创建shape对象，其初始位置一定在屏幕外
 class GameLogic {
+    gameStart = false // 游戏当前状态
+
     config
     ctx
     noticeCtx
@@ -28,16 +30,8 @@ class GameLogic {
         this.config = config
         this.ctx = ctx
         this.noticeCtx = noticeCtx
-        this.blocks = []
-        for (let x = 0; x < config.monitor.w; x++) {
-            this.blocks.push([])
-            for (let y = 0; y < config.monitor.h; y++) {
-                this.blocks[x].push(null)
-            }
-        }
         this.createPreShapes()
         this.bindInput()
-
     }
 
     // 创建预制件
@@ -91,12 +85,19 @@ class GameLogic {
         })
     }
 
+    createBlocks() {
+        this.blocks = []
+        for (let x = 0; x < config.monitor.w; x++) {
+            this.blocks.push([])
+            for (let y = 0; y < config.monitor.h; y++) {
+                this.blocks[x].push(null)
+            }
+        }
+    }
+
     // 随机创建一个shape
     generateShape() {
         let i = Math.floor(Math.random() * this.preShapes.length * 10000) % this.preShapes.length
-        // this.currentShape = this.preShapes[i]()
-        // this.registerShape(this.currentShape)
-
         return this.preShapes[i]()
     }
 
@@ -138,13 +139,18 @@ class GameLogic {
     }
 
     start() {
+        this.reset()
+
         // 创建shape
         this.currentShape = this.generateShape()
         this.registerShape(this.currentShape)
         this.nextShape = this.generateShape()
         this.renderNotice()
 
+        slc.levelUpScore = this.config.game.levelUpScore
         slc.startLevel = this.config.game.startLevel
+        slc.level = slc.startLevel
+        slc.updateUI()
 
         // 开启计时
         this.timer = setInterval(() => {
@@ -152,6 +158,23 @@ class GameLogic {
             this.update()
 
         }, 20)
+
+        this.gameStart = true
+    }
+
+    reset() {
+        this.createBlocks()
+
+        this.currentShape = undefined
+        this.shapes = []
+        this.nextShape = undefined
+        this.ctx.clearRect(0, 0, this.config.block.size * this.config.monitor.w, this.config.block.size * this.config.monitor.h)
+
+        slc.reset()
+
+        if (this.timer) clearInterval(this.timer)
+
+        this.gameStart = false
     }
 
     update() {
@@ -171,7 +194,7 @@ class GameLogic {
         // 若不是手动点击下，则自动下坠计时
         if (!downPressed) {
             this.currentTime += 20
-            if (this.currentTime >= config.game.speed - 0 * this.config.game.perLevelSpeedUp) {
+            if (this.currentTime >= config.game.speed - slc.level * this.config.game.perLevelSpeedUp) {
                 this.currentTime = 0
                 direction.y = 1
             }
@@ -201,6 +224,18 @@ class GameLogic {
         if (this.needRender) {
             this.needRender = false
             this.render()
+        }
+    }
+
+    // 暂停
+    pause() {
+        if (this.gameStart && this.timer) {
+            clearInterval(this.timer)
+            this.timer = undefined
+        } else if (this.gameStart && this.timer === undefined) {
+            this.timer = setInterval(() => {
+                this.update()
+            }, 20)
         }
     }
 
@@ -345,7 +380,9 @@ class GameLogic {
             let block = this.currentShape.blocks[i]
             if (block.position.y < 0) {
                 clearInterval(this.timer)
+                this.timer = undefined
                 alert('游戏结束')
+                this.gameStart = false
                 return true
             }
         }
